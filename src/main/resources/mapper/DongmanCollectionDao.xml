@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.DongmanCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.dongman_id as dongmanId
+        ,a.yonghu_id as yonghuId
+        ,a.dongman_collection_types as dongmanCollectionTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.DongmanCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,dongman.dongman_name as dongmanName
+        ,dongman.dongman_types as dongmanTypes
+        ,dongman.dongman_photo as dongmanPhoto
+        ,dongman.dongman_video as dongmanVideo
+        ,dongman.dongman_shijian as dongmanShijian
+        ,dongman.dongman_faxing as dongmanFaxing
+        ,dongman.dongman_add as dongmanAdd
+        ,dongman.dongman_gs as dongmanGs
+        ,dongman.chuchang_time as chuchangTime
+        ,dongman.dongman_sc as dongmanSc
+        ,dongman.dongman_jishu as dongmanJishu
+        ,dongman.dongman_daoyan as dongmanDaoyan
+        ,dongman.zhuangtai_types as zhuangtaiTypes
+        ,dongman.dongman_content as dongmanContent
+        ,dongman.dongman_delete as dongmanDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM dongman_collection  a
+        left JOIN dongman dongman ON a.dongman_id = dongman.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.dongmanId != null and params.dongmanId != ''">
+                and (
+                    a.dongman_id = #{params.dongmanId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.dongmanCollectionTypes != null and params.dongmanCollectionTypes != ''">
+                and a.dongman_collection_types = #{params.dongmanCollectionTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断国漫先驱的id不为空 -->
+            <if test=" params.dongmanIdNotNull != '' and params.dongmanIdNotNull != null and params.dongmanIdNotNull != 'null' ">
+                and a.dongman_id IS NOT NULL
+            </if>
+            <if test=" params.dongmanName != '' and params.dongmanName != null and params.dongmanName != 'null' ">
+                and dongman.dongman_name like CONCAT('%',#{params.dongmanName},'%')
+            </if>
+            <if test="params.dongmanTypes != null  and params.dongmanTypes != ''">
+                and dongman.dongman_types = #{params.dongmanTypes}
+            </if>
+
+            <if test=" params.dongmanVideo != '' and params.dongmanVideo != null and params.dongmanVideo != 'null' ">
+                and dongman.dongman_video like CONCAT('%',#{params.dongmanVideo},'%')
+            </if>
+            <if test=" params.dongmanShijian != '' and params.dongmanShijian != null and params.dongmanShijian != 'null' ">
+                and dongman.dongman_shijian like CONCAT('%',#{params.dongmanShijian},'%')
+            </if>
+            <if test=" params.dongmanFaxing != '' and params.dongmanFaxing != null and params.dongmanFaxing != 'null' ">
+                and dongman.dongman_faxing like CONCAT('%',#{params.dongmanFaxing},'%')
+            </if>
+            <if test=" params.dongmanAdd != '' and params.dongmanAdd != null and params.dongmanAdd != 'null' ">
+                and dongman.dongman_add like CONCAT('%',#{params.dongmanAdd},'%')
+            </if>
+            <if test=" params.dongmanGs != '' and params.dongmanGs != null and params.dongmanGs != 'null' ">
+                and dongman.dongman_gs like CONCAT('%',#{params.dongmanGs},'%')
+            </if>
+            <if test=" params.chuchangTimeStart != '' and params.chuchangTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(dongman.chuchang_time) >= UNIX_TIMESTAMP(#{params.chuchangTimeStart}) ]]>
+            </if>
+            <if test=" params.chuchangTimeEnd != '' and params.chuchangTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(dongman.chuchang_time) <= UNIX_TIMESTAMP(#{params.chuchangTimeEnd}) ]]>
+            </if>
+            <if test=" params.dongmanSc != '' and params.dongmanSc != null and params.dongmanSc != 'null' ">
+                and dongman.dongman_sc like CONCAT('%',#{params.dongmanSc},'%')
+            </if>
+            <if test=" params.dongmanJishu != '' and params.dongmanJishu != null and params.dongmanJishu != 'null' ">
+                and dongman.dongman_jishu like CONCAT('%',#{params.dongmanJishu},'%')
+            </if>
+            <if test=" params.dongmanDaoyan != '' and params.dongmanDaoyan != null and params.dongmanDaoyan != 'null' ">
+                and dongman.dongman_daoyan like CONCAT('%',#{params.dongmanDaoyan},'%')
+            </if>
+            <if test="params.zhuangtaiTypes != null  and params.zhuangtaiTypes != ''">
+                and dongman.zhuangtai_types = #{params.zhuangtaiTypes}
+            </if>
+
+            <if test=" params.dongmanContent != '' and params.dongmanContent != null and params.dongmanContent != 'null' ">
+                and dongman.dongman_content like CONCAT('%',#{params.dongmanContent},'%')
+            </if>
+            <if test="params.dongmanDeleteStart != null  and params.dongmanDeleteStart != '' ">
+                <![CDATA[  and dongman.dongman_delete >= #{params.dongmanDeleteStart}   ]]>
+            </if>
+            <if test="params.dongmanDeleteEnd != null  and params.dongmanDeleteEnd != '' ">
+                <![CDATA[  and dongman.dongman_delete <= #{params.dongmanDeleteEnd}   ]]>
+            </if>
+            <if test="params.dongmanDelete != null  and params.dongmanDelete != '' ">
+                and dongman.dongman_delete = #{params.dongmanDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(dongman.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(dongman.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

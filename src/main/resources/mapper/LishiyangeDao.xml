@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LishiyangeDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.lishiyange_name as lishiyangeName
+        ,a.lishiyange_types as lishiyangeTypes
+        ,a.lishiyange_photo as lishiyangePhoto
+        ,a.insert_time as insertTime
+        ,a.lishiyange_content as lishiyangeContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LishiyangeView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM lishiyange  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.lishiyangeName != '' and params.lishiyangeName != null and params.lishiyangeName != 'null' ">
+                and a.lishiyange_name like CONCAT('%',#{params.lishiyangeName},'%')
+            </if>
+            <if test="params.lishiyangeTypes != null and params.lishiyangeTypes != ''">
+                and a.lishiyange_types = #{params.lishiyangeTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.lishiyangeContent != '' and params.lishiyangeContent != null and params.lishiyangeContent != 'null' ">
+                and a.lishiyange_content like CONCAT('%',#{params.lishiyangeContent},'%')
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
